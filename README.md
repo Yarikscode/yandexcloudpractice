@@ -1,2 +1,3 @@
-# yandexcloudpractice
-That's my yandex cloud practice 
+# :cloud: yandexcloudpractice
+
+Здесь мой прогресс :feet: работы с Яндекс облаком
