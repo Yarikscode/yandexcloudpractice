@@ -1,0 +1,42 @@
+# Cоздание кластера
+yc managed-kubernetes cluster create \
+  --name test-k8s \
+  --network-name default \
+  --zone ru-central1-a \
+  --subnet-name default-ru-central1-a  \
+  --public-ip \
+  --release-channel rapid \
+  --version 1.29 \
+  --cluster-ipv4-range 10.1.0.0/16 \
+  --service-ipv4-range 10.2.0.0/16 \
+  --service-account-name defaultservice1 \
+  --node-service-account-name containerpuller \
+  --daily-maintenance-window start=22:00,duration=10h
+ 
+#Подключение кластера
+yc managed-kubernetes cluster get-credentials --id <ID_кластера> --external 
+
+# Создание узла
+ yc managed-kubernetes node-group create \
+  --cluster-name test-k8s \
+  --cores 2 \
+  --disk-size 96 \
+  --disk-type network-hdd \
+  --fixed-size 1 \
+  --location zone=ru-central1-a,subnet-name=default-ru-central1-a \
+  --memory 4 \
+  --name newnodes \
+  --network-acceleration-type standard \
+  --container-runtime containerd \
+  --preemptible \
+  --version 1.29 \
+  --metadata-from-file ssh-keys="/etc/ssh/ssh_host_rsa_key.pub"
+
+
+#Инфа о нодах и узлах
+kubectl get nodes 
+kubectl get nodes -o wide
+kubectl top nodes
+
+#Удаление кластера
+yc managed-kubernetes cluster delete test-k8s
