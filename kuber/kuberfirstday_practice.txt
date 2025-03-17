@@ -26,12 +26,10 @@ yc managed-kubernetes cluster get-credentials --id <ID_кластера> --exter
   --location zone=ru-central1-a,subnet-name=default-ru-central1-a \
   --memory 4 \
   --name newnodes \
-  --network-acceleration-type standard \
   --container-runtime containerd \
   --preemptible \
   --version 1.29 \
-  --metadata-from-file ssh-keys="/etc/ssh/ssh_host_rsa_key.pub"
-
+  --metadata-from-file ssh-keys="/home/yaroslav/.ssh/id_ed25519.pub"
 
 #Инфа о нодах и узлах
 kubectl get nodes 
