@@ -1,0 +1,75 @@
+# Cоздание кластера
+yc managed-kubernetes cluster create \
+  --name test-k8s \
+  --network-name default \
+  --zone ru-central1-a \
+  --subnet-name default-ru-central1-a  \
+  --public-ip \
+  --release-channel rapid \
+  --version 1.29 \
+  --cluster-ipv4-range 10.1.0.0/16 \
+  --service-ipv4-range 10.2.0.0/16 \
+  --service-account-name defaultservice1 \
+  --node-service-account-name containerpuller \
+  --daily-maintenance-window start=22:00,duration=10h
+ 
+#Подключение кластера
+yc managed-kubernetes cluster get-credentials --id <ID_кластера> --external 
+
+# Создание узла
+ yc managed-kubernetes node-group create \
+  --cluster-name test-k8s \
+  --cores 2 \
+  --disk-size 96 \
+  --disk-type network-hdd \
+  --fixed-size 1 \
+  --location zone=ru-central1-a,subnet-name=default-ru-central1-a \
+  --memory 4 \
+  --name newnodes \
+  --container-runtime containerd \
+  --preemptible \
+  --version 1.29 \
+  --metadata-from-file ssh-keys="/home/yaroslav/.ssh/id_ed25519.pub"
+
+#Инфа о нодах и узлах
+kubectl get nodes 
+kubectl get nodes -o wide
+kubectl top nodes
+
+#Удаление кластера
+yc managed-kubernetes cluster delete test-k8s
+
+#Деплой первого приложения
+
+kubectl get namespaces - получить namespases
+
+kubectl get all - проверить все namespace
+
+kubectl create ns application - создать namespase
+
+kubectl apply -f deploy.yaml - применить настройки
+
+kubectl -n application describe deployment nginx-deploy - детальная информация о deployment
+
+kubectl config set-context --current --namespace=application - namespace по умолчанию
+
+kubectl edit rs <REPLICASET_NAME> - попробовать отредактировать реплику (после обновления, параметры реплики вернутся к изначальному состоянию)
+
+kubectl delete pod <POD_NAME> - удаление POD (кол-во POD's восстановится из-за реплики)
+
+kubectl describe pod <POD_NAME> - описание и состояние конкретного POD
+
+kubectl logs <POD_NAME> - посмотреть логи POD
+
+kubectl logs <POD_NAME> -c another-container - посмотреть логи POD, если он состоит из нескольких контейнеров
+
+kubectl logs <POD_NAME> --since=30m  - посмотреть логи за последние 30 минут
+
+kubectl scale deployment nginx-deploy --replicas=5 - изменить кол-во реплик до 5
+
+kubectl delete -f deploy.yaml - удалить все объекты указанные в манифесте
+
+kubectl delete deployment nginx-deploy - удалить deployment
+
+kubectl delete ns application - удалить ns
+
