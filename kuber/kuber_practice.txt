@@ -73,3 +73,70 @@ kubectl delete deployment nginx-deploy - удалить deployment
 
 kubectl delete ns application - удалить ns
 
+# Создание аналогичное ConfigMap, но императивный способ
+
+kubectl create configmap wordpress-config --from-literal=WORDPRESS_DB_HOST=localhost --from-literal=WORDPRESS_DB_NAME=exampledb
+
+# Создание ключа шифрования для k8s
+
+yc kms symmetric-key create \
+  --name protect-key \
+  --default-algorithm aes-256 \
+  --rotation-period 24h \
+  --deletion-protection
+
+
+# Создание кластера с включенной функцией шифрования
+yc managed-kubernetes cluster create \
+  --name test-k8s \
+  --network-name default \
+  --zone ru-central1-a \
+  --subnet-name default-ru-central1-a  \
+  --public-ip \
+  --release-channel rapid \
+  --version 1.29 \
+  --cluster-ipv4-range 10.1.0.0/16 \
+  --service-ipv4-range 10.2.0.0/16 \
+  --service-account-name defaultservice1 \
+  --node-service-account-name containerpuller \
+  --daily-maintenance-window start=22:00,duration=10h \
+  --kms-key-name protect-key
+
+# Создание первой переменной окружения
+
+kubectl apply -f nginxapp.yaml
+
+kubectl logs nginx-pod
+
+kubectl delete pod nginx-pod
+
+
+# Создание configmap, secret
+
+kubectl create -f nginx-config.yaml - создать configMap
+
+kubectl apply -f nginx-pod.yaml - создать POD
+
+kubectl exec nginx-pod -- cat /etc/nginx/nginx.conf - просмотр содержимого файла
+
+kubectl exec nginx -s reload - перезагрузка nginx внутри POD
+
+kubectl run -it --rm=true temp-pod --image=ubuntu/apache2 -- bash - создание временного pod
+
+echo 'password' | htpasswd -n -i user | base64 - получить закодированную пару юзер+пароль
+
+kubectl create -f nginx-basic-auth.yaml - создать секрет
+
+kubectl get pv,pvc  - проверка, что в соответствии PVC был создан PV
+
+kubectl cp ./index.html nginx-pod:/usr/share/nginx/html/index.html - скопировать файл в том
+
+kubectl exec nginx-pod -- curl -s -S -u user:password http://localhost - проверить, что файл скопировался
+
+kubectl edit pvc nginx-pvc - изменить pvc, например размер тома
+
+
+
+
+
+
