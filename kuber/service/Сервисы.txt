@@ -1,0 +1,35 @@
+# Сервисы
+
+kubectl expose deployment nginx-app --port 80 --target-port=8080 - создание сервиса императивным путем
+
+kubectl -n nginx-with-svc exec -ti nginx-deployment-769c477977-27tjv -- curl localhost - проверка корректности deployment
+
+kubectl -n nginx-with-svc get svc - проверка создан ли сервис
+
+kubectl -n nginx-with-svc run -it --rm=true  --image=curlimages/curl --restart=Never -- curl nginx-service - проверка доступности сервиса
+
+# Создание сервисного аккаунта
+yc iam service-account create --name my-robot-for-kuber \
+  --description "this is my favorite service account"
+
+  --role alb.editor \
+  --role vpc.publicAdmin \
+  --role certificate-manager.certificates.downloader \
+  --role compute.viewer
+
+# Назначить ему роль
+yc resource-manager folder add-access-binding b1g231**** \
+  --role alb.editor \
+  --role vpc.publicAdmin \
+  --role certificate-manager.certificates.downloader \
+  --role compute.viewer \
+  --subject serviceAccount:aje3p******
+
+# Создание ingress
+
+yc managed-kubernetes cluster list-node-groups \
+    --name test-k8s \
+    --format json | jq '.[].node_template.network_interface_specs[].subnet_ids[]' - узнать subnet id
+
+kubectl -n nginx-with-svc get ingress - убедится, что ingress controller создан
+
