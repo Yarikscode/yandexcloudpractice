@@ -12,7 +12,23 @@ yc managed-kubernetes cluster create \
   --service-account-name defaultservice1 \
   --node-service-account-name containerpuller \
   --daily-maintenance-window start=22:00,duration=10h
- 
+
+ # Cоздание кластера с сетевыми политиками
+yc managed-kubernetes cluster create \
+  --name test-k8s \
+  --network-name default \
+  --zone ru-central1-a \
+  --subnet-name default-ru-central1-a  \
+  --public-ip \
+  --enable-network-policy \
+  --release-channel rapid \
+  --version 1.29 \
+  --cluster-ipv4-range 10.1.0.0/16 \
+  --service-ipv4-range 10.2.0.0/16 \
+  --service-account-name defaultservice1 \
+  --node-service-account-name containerpuller \
+  --daily-maintenance-window start=22:00,duration=10h
+
 # Подключение кластера
 yc managed-kubernetes cluster get-credentials --id <ID_кластера> --external 
 
