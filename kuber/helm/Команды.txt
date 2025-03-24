@@ -1,0 +1,102 @@
+# Основные команды
+
+helm repo add stable https://charts.helm.sh/stable - добавить репу с Helm чартами
+
+helm repo update - обновить локальный кэш репозиториев
+
+helm search repo mysql - найти в добавленной репе
+helm search hub mysql - найти в офф. репе
+
+helm template my-release stable/mysql - генерация манифестов, предварительно посмотреть конфигурацию
+
+helm install my-release stable/mysql --set image.tag=5.7 --set mysqlRootPassword=secretpassword - переопределить значения из values
+
+helm install my-release -f custom-values.yaml stable/mysql - использование пользовательского файла для переопределения
+
+helm list - список установленных ресурсов
+
+helm upgrade my-release stable/mysql - обновить релиз
+
+helm upgrade my-release stable/mysql --set image.tag=5.7 - можно также обновить значения
+
+helm rollback my-release 1 - откат до предыдущей версии
+
+helm uninstall my-release - удалить релиз
+
+helm show values stable/mysql - показать значения по умолчанию для чарта
+
+helm package mychart/ - создает пакет из локальной директории
+
+# Практика
+
+curl -L https://charts.bitnami.com/bitnami/index.yaml -o index.yaml
+
+curl -L https://charts.bitnami.com/bitnami/nginx-15.10.2.tgz -o ./bitnami/nginx-15.10.2.tg - скачать nginx
+
+helm install my-release nginx-15.10.2.tgz -n web --create-namespace - создать nginx в web
+
+kubectl apply -f configmap-index.yaml -n web - создать Configmap
+
+helm upgrade my-release ./nginx-15.10.2.tgz -n web -f custom-values.yaml - обновить релиз
+
+helm history my-release -n web - посмотреть релизы
+
+helm rollback my-release 1 -n web - вернуться на первый релиз
+
+kubectl get all -n web - посмотреть изменения
+
+helm uninstall my-release -n web - удалить релиз
+
+kubectl delete configmap index -n web - удалить конфигмап
+
+
+Практика#2 ALB
+
+cat sa-key.json | helm registry login cr.yandex --username 'json_key' --password-stdin && \
+helm pull oci://cr.yandex/yc-marketplace/yandex-cloud/yc-alb-ingress/yc-alb-ingress-controller-chart \
+  --version v0.2.20 \
+  --untar && \
+helm install \
+  --namespace <пространство_имен> \
+  --create-namespace \
+  --set folderId=<идентификатор_каталога> \
+  --set clusterId=<идентификатор_кластера> \
+  --set enableDefaultHealthChecks=<true_или_false> \
+  --set-file saKeySecretKey=sa-key.json \
+  yc-alb-ingress-controller ./yc-alb-ingress-controller-chart/ 
+
+
+Теория #2
+
+helm create <имя чарта> - создание чарта
+
+helm lint <путь до чарта>  - проверка линтером
+
+helm template <путь до чарта> - проверка шаблонов
+
+helm install my-release <путь до чарта> --dry-run - пробный запуск
+
+helm package mychart - упаковка в архив
+
+Практика #3
+
+helm lint <путь-до-чарта/my-nginx-chart> - проверка линтером
+
+helm template my-nginx-chart/ - темплейтирование
+
+helm install my-release my-nginx-chart/ --dry-run - прогон
+
+helm install my-release my-nginx-chart -n web-app --create-namespace - создаем релиз
+
+kubectl describe svc my-release-service -n web-app | grep "LoadBalancer Ingress:" | awk '{print $3}' - ip ingress
+
+helm upgrade my-release my-nginx-chart/ -n web-app -f custom-values.yaml - новый релиз с параметрами из файла
+
+helm ls -n web-app - посмотреть установленные релизы в кластере
+
+helm uninstall my-release -n web-app  - удалить релиз
+
+kubectl delete ns web-app - удалить namespace
+
+
+
