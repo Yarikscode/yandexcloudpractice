@@ -1,0 +1,22 @@
+#Практика
+
+kubectl taint nodes cl13qtc4ojigmi72r42v-idy special=true:NoSchedule - повесим яд на одну из нод
+
+#Добавим nodeSelector и tolerations
+
+kubectl get pods -o wide - проверить, что pod поднялся на узле с taint
+
+#Job
+
+kubectl get jobs - проверить выполнения джобы
+
+kubectl run --rm=true -i -t check-exchange-rates-pod --image=alpine/curl --restart=Never --overrides="$(cat override.json)" - получить курсы валют
+
+#CronJob
+
+kubectl run --rm=true -i -t check-exchange-rates-pod --image=alpine/curl --restart=Never --overrides="$(cat override.json)" - проверить что файлы добавляются каждую минуту
+
+#Init 
+
+kubectl run --rm=true -i -t check-exchange-rates-pod --image=alpine/curl --restart=Never --overrides="$(cat override.json)" - проверить что остается 3 файла с курсами
+

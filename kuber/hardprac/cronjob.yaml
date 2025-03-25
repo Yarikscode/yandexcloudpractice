@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: get-cbr-exchange-rates
+spec:
+  schedule: "*/1 * * * *"  # This schedule runs the job every 1 minute
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: curl
+            image: alpine/curl
+            command: ["sh", "-c"]
+            args:
+            - curl -s -k http://www.cbr.ru/scripts/XML_daily_eng.asp > /data/exchange-rates-$(date +%Y-%m-%d-%H-%M-%S).xml
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+          volumes:
+          - name: data-volume
+            persistentVolumeClaim:
+              claimName: exchange-rates-pvc
+          restartPolicy: Never
