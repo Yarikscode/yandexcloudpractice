@@ -1,0 +1,31 @@
+#Создание ноды с автоматическим масштабированием
+ yc managed-kubernetes node-group create \
+  --cluster-name test-k8s \
+  --cores 2 \
+  --disk-size 96 \
+  --disk-type network-hdd \
+  --auto-scale min=1,initial=1,max=3 \
+  --network-interface subnets=default-ru-central1-a,ipv4-address=nat \
+  --memory 4 \
+  --name newnodes \
+  --container-runtime containerd \
+  --preemptible \
+  --version 1.29 \
+  --metadata-from-file ssh-keys="/home/yaroslav/.ssh/id_ed25519.pub"
+
+kubectl apply -f deployment-for-autoscale.yaml
+
+kubectl get all -n autoscale-app -o wide - проверить применения манифеста
+
+kubectl scale --replicas=7 deployment.apps/deployment-for-autoscale -n autoscale-app - увеличим количество реплик до 7
+
+kubectl get all -n autoscale-app -o wide - проверим развертывание
+
+kubectl scale --replicas=1 deployment.apps/deployment-for-autoscale -n autoscale-app - изменим scale до 1
+
+kubectl get hpa -n autoscale-app - посмотреть развернутый hpa
+
+LOAD_BALANCER_IP=158.160.167.100
+
+
+while true; do wget -q -O- http://$LOAD_BALANCER_IP; done - дудосим load balancer
