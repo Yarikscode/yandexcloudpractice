@@ -1,0 +1,14 @@
+#Включить логирование
+
+yc logging group create \
+  --name=group \
+  --retention-period=1h \
+
+yc managed-kubernetes cluster update test-k8s \
+  --master-logging enabled=true,`
+    `log-group-id=e23pe14ah64pdlrtn5hr,`
+    `kube-apiserver-enabled=true,`
+    `cluster-autoscaler-enabled=true,`
+    `events-enabled=true,`
+    `audit-enabled=true
+
