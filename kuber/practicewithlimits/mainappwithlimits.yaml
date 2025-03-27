@@ -1,0 +1,50 @@
+---
+### Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: resources
+
+---
+### Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-for-resources
+  namespace: resources
+  labels:
+    app: test-resources
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-resources
+  template:
+    metadata:
+      name: test-resources
+      labels:
+        app: test-resources
+    spec:
+      containers:
+        - name: test-resources
+          image: k8s.gcr.io/hpa-example
+          resources:
+            limits:
+              memory: "500Mi"
+              cpu: "1"
+
+---
+### Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-for-resources
+  namespace: resources
+spec:
+  selector:
+    app: test-resources
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

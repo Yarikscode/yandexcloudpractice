@@ -1,0 +1,66 @@
+# Создаем приложение как в прошлом уроке
+
+# NOlimits
+LOAD_BALANCER_IP=$(kubectl get service service-for-resources -n resources -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+while true; do wget -q -O- http://$LOAD_BALANCER_IP; done  - Создаем нагрузку
+
+# Cоздаем нагрузку на поды с limits
+
+kubectl top pod -n resources - потребление ресурсов
+
+kubectl top node cl19nupckdhc6n85kjal-ojyh - убедится, что не превышает 1 cpu
+
+
+# NORequest
+yc managed-kubernetes node-group update cat9vsibemijs7vvluim \
+  --auto-scale min=0,initial=1,max=1 - обновить группу узлов
+
+kubectl apply -f mainapp.yaml - уберем лимиты
+
+kubectl scale --replicas=20 deployment.apps/deployment-for-resources -n resources - увеличим количество реплик пода до 20
+
+kubectl get po -n resources - проверка кол-ва подов
+
+#Request
+
+kubectl scale --replicas=20 deployment.apps/deployment-for-resources -n resources - увеличим кол-во реплик пода
+
+kubectl describe po deployment-for-resources-698f76c94d-mwbg6 -n resources - в описании можно увидеть что не хватает ресурсов
+
+# PTSC
+
+# Создаем две ноды в другой группе доступности
+
+ yc managed-kubernetes node-group create \
+  --cluster-name test-k8s \
+  --cores 2 \
+  --disk-size 96 \
+  --disk-type network-hdd \
+  --auto-scale min=1,initial=1,max=2 \
+  --network-interface subnets=default-ru-central1-b,ipv4-address=nat \
+  --memory 4 \
+  --name newnodesb \
+  --container-runtime containerd \
+  --preemptible \
+  --version 1.29 \
+  --metadata-from-file ssh-keys="/home/yaroslav/.ssh/id_ed25519.pub"
+# Применим манифест ptsc
+
+
+kubectl scale --replicas=6 deployment.apps/deployment-for-resources -n resources - увеличим кол-во реплик до 6
+
+
+kubectl get po -n resources -o wide - убеждаемся, что у нас по 3 пода в каждой зоне
+
+
+# NoPDB
+
+kubectl drain cl1bcga0sglqdmuq99kd-ihir --ignore-daemonsets - выселяем поды
+
+kubectl uncordon cl1p49bftj9377ok56na-iqol - даем возможность размещать поды
+
+# PDB
+
+kubectl drain cl1p49bftj9377ok56na-ulap --ignore-daemonsets - выселяем поды на другую ноду, и наблюдаем что они выселяются по одному, чтобы сохранить минимальное кол-во нод
+
+

@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: example-pdb
+  namespace: resources
+spec:
+  minAvailable: 9
+  selector:
+    matchLabels:
+      app: test-resources
